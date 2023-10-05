@@ -29,7 +29,6 @@ def load_img():
 
 
 def add_watermark():
-    print(os.path.basename(selected_img))
 
     if selected_img != "":
         # source: https://www.tutorialspoint.com/python_pillow/python_pillow_creating_a_watermark.htm
@@ -42,10 +41,19 @@ def add_watermark():
         draw.text((10, 10), text, font=selected_font, fill="gray")
 
         # Save watermarked image
-        # todo - filename = originalfilename_watermarked.originalext
-        # todo - check if possible to get original image size
-        picture.save("e:./watermarked.jpg")
+        # img size is smaller because PIL compresses it
+        # create file name
+        img_name = os.path.basename(selected_img)
+        save_folder = os.path.dirname(selected_img)
 
+        # if there are multiple dots, splitext splits at the last one
+        # test.file.jpg -> ('test.file', '.jpg')
+        filename_split = os.path.splitext(img_name)
+        new_image_name = str(filename_split[0]) + "_watermark." + filename_split[1]
+
+        # save img
+        picture.save(os.path.join(save_folder, new_image_name))
+        # todo - add status message (file saved at...)
         # todo - display watermarked img
 
 
