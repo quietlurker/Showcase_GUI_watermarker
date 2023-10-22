@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import filedialog, font
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 import os
+import datetime
 
 # global variable for image name mostly for tkinter not to lookse the
 selected_img = ""
@@ -29,16 +30,16 @@ def load_img():
 
 
 def add_watermark():
-
+    watermark_text = entry_watermark.get()[:25]
     if selected_img != "":
         # source: https://www.tutorialspoint.com/python_pillow/python_pillow_creating_a_watermark.htm
         picture = Image.open(selected_img)
         width, height = picture.size
         draw = ImageDraw.Draw(picture)
-        text = "picture by ghost"
-        selected_font = ImageFont.truetype("arial.ttf", 30)
+        text = watermark_text
+        selected_font = ImageFont.truetype("arial.ttf", 50)
         # todo - place in specific place in the picture
-        draw.text((10, 10), text, font=selected_font, fill="gray")
+        draw.text((10, 10), text, font=selected_font, fill="red")
 
         # Save watermarked image
         # img size is smaller because PIL compresses it
@@ -53,28 +54,49 @@ def add_watermark():
 
         # save img
         picture.save(os.path.join(save_folder, new_image_name))
-        # todo - add status message (file saved at...)
         # todo - display watermarked img
+        label_status.config(text=f"New image with watermark saved as {os.path.join(save_folder, new_image_name)}")
+
+def end_program():
+    window.quit()
 
 
 # ------------------------------------------------
 # setup tkinter window
 # ------------------------------------------------
-# todo - add text to customize watermarked text
 window = Tk()
 window.title("watermarker")
 window.config(bg="teal", padx=10, pady=10)
 
+# text input
+label_text = Label(text='watermark text: ')
+label_text.grid(column=0, row=0)
+
+# get current year
+current_year = datetime.datetime.now().year
+initial_text = f"@ghost {current_year}"
+
+# prepare initial watermark text
+entry_watermark = Entry(width=50)
+entry_watermark.insert(END, initial_text)
+entry_watermark.grid(column=1, row=0, columnspan=2, sticky="w")
+
 canvas = Canvas(window, width=520, height=400, bg="teal", highlightthickness=0)
 img_to_display = PhotoImage(file="./files/background_img.png")
 displayed_img = canvas.create_image(10, 10, image=img_to_display, anchor="nw")
-canvas.grid(column=0, row=0, columnspan=2)
+canvas.grid(column=0, row=1, columnspan=3)
 
 button_load_img = Button(text="Load image", highlightthickness=0, command=load_img)
-button_load_img.grid(column=0, row=1)
+button_load_img.grid(column=0, row=2)
 
 button_add_watermark = Button(text="Add watermark", highlightthickness=0, command=add_watermark)
-button_add_watermark.grid(column=1, row=1)
+button_add_watermark.grid(column=1, row=2)
 
-# todo - add exit button
+button_end = Button(text="Exit", highlightthickness=0, command=end_program)
+button_end.grid(column=2, row=2)
+
+# status label
+label_status = Label(text='Load an image...', bg="black", fg="green", width=80, justify="left", anchor="w", wraplength=520)
+label_status.grid(column=0, row=3, padx=10, pady=10, columnspan=3)
+
 window.mainloop()
